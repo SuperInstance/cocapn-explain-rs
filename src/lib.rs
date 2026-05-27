@@ -13,10 +13,21 @@ pub struct FeatureContribution {
 
 impl FeatureContribution {
     pub fn new(feature: &str, value: f64, contribution: f64, baseline: f64) -> Self {
-        Self { feature: feature.to_string(), value, contribution, baseline }
+        Self {
+            feature: feature.to_string(),
+            value,
+            contribution,
+            baseline,
+        }
     }
     pub fn direction(&self) -> &'static str {
-        if self.contribution > 0.0 { "positive" } else if self.contribution < 0.0 { "negative" } else { "neutral" }
+        if self.contribution > 0.0 {
+            "positive"
+        } else if self.contribution < 0.0 {
+            "negative"
+        } else {
+            "neutral"
+        }
     }
 }
 
@@ -31,15 +42,27 @@ pub struct Explanation {
 
 impl Explanation {
     pub fn new(decision: &str, confidence: f64) -> Self {
-        Self { decision: decision.to_string(), confidence, contributions: vec![], summary: String::new() }
+        Self {
+            decision: decision.to_string(),
+            confidence,
+            contributions: vec![],
+            summary: String::new(),
+        }
     }
 
-    pub fn add_contribution(&mut self, c: FeatureContribution) { self.contributions.push(c); }
+    pub fn add_contribution(&mut self, c: FeatureContribution) {
+        self.contributions.push(c);
+    }
 
     /// Top-k features by absolute contribution.
     pub fn top_features(&self, k: usize) -> Vec<&FeatureContribution> {
         let mut sorted: Vec<_> = self.contributions.iter().collect();
-        sorted.sort_by(|a, b| b.contribution.abs().partial_cmp(&a.contribution.abs()).unwrap());
+        sorted.sort_by(|a, b| {
+            b.contribution
+                .abs()
+                .partial_cmp(&a.contribution.abs())
+                .unwrap()
+        });
         sorted.into_iter().take(k).collect()
     }
 
@@ -51,10 +74,16 @@ impl Explanation {
     /// Generate a text summary.
     pub fn summarize(&self) -> String {
         let top = self.top_features(3);
-        let parts: Vec<String> = top.iter().map(|c| {
-            format!("{}({:.2},{:+.3})", c.feature, c.value, c.contribution)
-        }).collect();
-        format!("{} [{:.0}%] ← {}", self.decision, self.confidence * 100.0, parts.join(", "))
+        let parts: Vec<String> = top
+            .iter()
+            .map(|c| format!("{}({:.2},{:+.3})", c.feature, c.value, c.contribution))
+            .collect();
+        format!(
+            "{} [{:.0}%] ← {}",
+            self.decision,
+            self.confidence * 100.0,
+            parts.join(", ")
+        )
     }
 }
 
@@ -66,8 +95,15 @@ pub struct LinearExplainer {
 }
 
 impl LinearExplainer {
-    pub fn new(baseline: f64) -> Self { Self { weights: HashMap::new(), baseline } }
-    pub fn set_weight(&mut self, feature: &str, weight: f64) { self.weights.insert(feature.to_string(), weight); }
+    pub fn new(baseline: f64) -> Self {
+        Self {
+            weights: HashMap::new(),
+            baseline,
+        }
+    }
+    pub fn set_weight(&mut self, feature: &str, weight: f64) {
+        self.weights.insert(feature.to_string(), weight);
+    }
 
     pub fn explain(&self, features: &HashMap<String, f64>, decision: &str) -> Explanation {
         let mut expl = Explanation::new(decision, 0.0);
@@ -94,12 +130,19 @@ pub fn permutation_importance(
     n_permutations: usize,
 ) -> f64 {
     // Baseline score
-    let baseline_mse: f64 = features.iter().zip(labels.iter())
-        .map(|(f, l)| (predict(f) - l).powi(2)).sum::<f64>() / features.len() as f64;
+    let baseline_mse: f64 = features
+        .iter()
+        .zip(labels.iter())
+        .map(|(f, l)| (predict(f) - l).powi(2))
+        .sum::<f64>()
+        / features.len() as f64;
 
     let mut permuted_mse = 0.0;
     let mut rng_state = 42u64;
-    let mut rng = || { rng_state = rng_state.wrapping_mul(6364136223846793005).wrapping_add(1); rng_state };
+    let mut rng = || {
+        rng_state = rng_state.wrapping_mul(6364136223846793005).wrapping_add(1);
+        rng_state
+    };
 
     for _ in 0..n_permutations {
         let mut permuted: Vec<HashMap<String, f64>> = features.to_vec();
@@ -112,8 +155,12 @@ pub fn permutation_importance(
             permuted[i].insert(feature_name.to_string(), vj);
             permuted[j].insert(feature_name.to_string(), vi);
         }
-        let mse: f64 = permuted.iter().zip(labels.iter())
-            .map(|(f, l)| (predict(f) - l).powi(2)).sum::<f64>() / n as f64;
+        let mse: f64 = permuted
+            .iter()
+            .zip(labels.iter())
+            .map(|(f, l)| (predict(f) - l).powi(2))
+            .sum::<f64>()
+            / n as f64;
         permuted_mse += mse;
     }
     permuted_mse /= n_permutations as f64;

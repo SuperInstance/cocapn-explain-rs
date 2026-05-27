@@ -1,0 +1,8 @@
+[package]
+name = "cocapn-explain"
+version = "0.1.0"
+edition = "2021"
+description = "Decision explainability — feature importance, SHAP-like attribution, decision trees"
+license = "MIT"
+
+[dependencies]

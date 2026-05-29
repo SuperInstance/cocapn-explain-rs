@@ -1,5 +1,9 @@
 # cocapn-explain-rs
 
+[![crates.io](https://img.shields.io/crates/v/placeholder)](https://crates.io/crates/placeholder) [![SuperInstance](https://img.shields.io/badge/SuperInstance-Ecosystem-blue)](https://github.com/SuperInstance)
+
+
+
 Decision explainability and feature importance — per-feature attribution with direction and magnitude, SHAP-like linear explanations, and permutation importance scoring.
 
 ## What This Gives You

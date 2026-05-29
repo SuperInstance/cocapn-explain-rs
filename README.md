@@ -73,6 +73,7 @@ permutation_importance(features, labels, predict_fn, feature_name, n_shuffles) -
 ```
 
 ## How It Fits
+- [OpenConstruct Documentation](https://github.com/SuperInstance/openconstruct-docs) — ecosystem-wide docs and guides
 
 - **[causal-graph-rs](https://github.com/SuperInstance/causal-graph-rs)** — Causal structure informs which features are truly causal vs confounded
 - **[cocapn-health-rs](https://github.com/SuperInstance/cocapn-health-rs)** — Explain why a service was flagged as unhealthy
